@@ -1,0 +1,16 @@
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Maven
+target/
+dependency-reduced-pom.xml
+
+# JDK runtime
+runtime/
+
+# Temporary files
+*.mf
+*.txt
+*.log
