@@ -1,0 +1,36 @@
+:: ① クリーンビルド＋shaded JAR を生成
+mvn clean package org.apache.maven.plugins:maven-shade-plugin:3.4.1:shade -DskipTests
+
+:: ② shaded JAR の存在確認
+dir target\*shaded*.jar /b
+
+:: ③ manifest の確認（Main-Class が正しく入っているか）
+jar -xf target\examdesk-1.0.0-shaded.jar META-INF/MANIFEST.MF && type META-INF\MANIFEST.MF
+
+:: ④ EntryPoint.class が含まれているか確認
+jar -tf target\examdesk-1.0.0-shaded.jar | findstr /i "io/github/kigo/examdesk/EntryPoint.class"
+
+:: ⑤ runtime が残っていたら削除
+rmdir /s /q runtime
+
+:: ⑥ JavaFX 付き runtime を生成
+set JAVAFX_LIB=C:\pleiades\javafx-sdk-25.0.1\lib
+jlink --module-path "C:\Program Files\Java\jdk-23\jmods;C:\pleiades\javafx-jmods-25.0.1" ^
+      --add-modules java.base,javafx.controls,javafx.fxml ^
+      --output runtime
+
+:: ⑦ runtime が正しく生成されたか確認
+runtime\bin\java -version
+
+:: ⑧ MSI を生成（ファイル名は ExamDesk-1.0.msi になる）
+jpackage --type msi ^
+  --input target ^
+  --name ExamDesk ^
+  --main-jar examdesk-1.0.0-shaded.jar ^
+  --main-class io.github.kigo.examdesk.EntryPoint ^
+  --runtime-image runtime ^
+  --win-shortcut ^
+  --win-menu ^
+  --win-console ^
+  --icon "C:\PLEIADES\2023-09\WORKSPACE\EXAMDESK\ico\app.ico" ^
+  --dest installer-output

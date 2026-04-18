@@ -9,5 +9,4 @@ dependency-reduced-pom.xml
 
 # Temporary files
 *.mf
-*.txt
 *.log
